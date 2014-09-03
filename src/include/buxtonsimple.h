@@ -33,6 +33,16 @@
 
 /*Buxton Simple API Methods*/
 /**
+ * Opens a client connection to the buxtond daemon, then set a flag to disable
+ * opens and closes by other funtions in the API.
+ */
+_bx_export_ void sbuxton_open(void);
+/*
+ * Closes the client connection to the buxtond daemon if it exists, then clears
+ * the flag to allow opens and closes by other functions in the API.
+ */
+_bx_export_ void sbuxton_close(void);
+/**
  * Creates a group if it does not exist and uses that group for all following get and set calls
  * If the group already exists, it will be used for all following get and set calls
  * Group and layer names longer than 256 bits will be truncated
