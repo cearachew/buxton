@@ -20,7 +20,7 @@
 #include <string.h>
 
 #include "buxtonsimple.h"
-#include "buxtonsimple-internals.h"
+//#include "buxtonsimple-internals.h"
 #include "log.h"
 /* Max length of layer and group names  */
 #define MAX_LG_LEN 256
@@ -45,13 +45,25 @@ void sbuxton_open(void)
 	client_locked = true;
 }
 
-/*Close a client that was opened with sbuxton_open, clear the flag */
+/* Close a client that was opened with sbuxton_open, clear the flag */
 void sbuxton_close(void)
 {
 	client_locked = false;
 	if (client != NULL) {
 		_client_disconnect();
 	}
+}
+
+/* Register a key for notification */
+void sbuxton_register_notification(char *key, NotifyCallback callback)
+{
+	if (!client_locked || !client) {
+		buxton_debug("Connection must first be opened via sbuxton_open");
+		errno = ENOTCONN;
+		return;
+	}
+
+	BuxtonKey key = buxton_key
 }
 
 /* Initialization of group */
