@@ -19,6 +19,7 @@
  */
 
 #include "buxton.h"
+#include "buxtonsimple-internals.h"
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
@@ -29,7 +30,6 @@
 #else
 #  define _bx_export_
 #endif
-
 
 /*Buxton Simple API Methods*/
 /**
@@ -42,6 +42,16 @@ _bx_export_ void sbuxton_open(void);
  * the flag to allow opens and closes by other functions in the API.
  */
 _bx_export_ void sbuxton_close(void);
+/*
+ * Registers a notification with Ecore for the key name given and the current
+ * group and layer. Calls callback with the key name and the new value when
+ * the value for that key is changed. On failure, sets errno.
+ * @param key A key name that is a string (char *)
+ * @param callback A function pointer that take a char * and a void * as arguments
+ *	and returns void
+ */
+_bx_export_ void sbuxton_register_notify(char *key, NotifyCallback callback);
+
 /**
  * Creates a group if it does not exist and uses that group for all following get and set calls
  * If the group already exists, it will be used for all following get and set calls
