@@ -664,6 +664,12 @@ end:
 	return ret;
 }
 
+bool buxton_wire_get_key_type(_BuxtonClient *client, _BuxtonKey *key,
+			BuxtonCallback callback, void *data)
+{
+	return true;
+}
+
 bool buxton_wire_get_value(_BuxtonClient *client, _BuxtonKey *key,
 			   BuxtonCallback callback, void *data)
 {

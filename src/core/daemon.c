@@ -91,6 +91,9 @@ bool parse_list(BuxtonControlMessage msg, size_t count, BuxtonData *list,
 		key->layer = list[0].store.d_string;
 		key->group = list[1].store.d_string;
 		break;
+	case BUXTON_CONTROL_GET_KEY_TYPE:
+		//set up stuff from the list
+		break;
 	case BUXTON_CONTROL_GET:
 		if (count == 4) {
 			if (list[0].type != STRING || list[1].type != STRING ||
@@ -224,6 +227,9 @@ bool buxtond_handle_message(BuxtonDaemon *self, client_list_item *client, size_t
 	case BUXTON_CONTROL_REMOVE_GROUP:
 		remove_group(self, client, &key, &response);
 		break;
+	case BUXTON_CONTROL_GET_KEY_TYPE:
+		//type_data = get_key_type(self, client, &key, &response);
+		break;
 	case BUXTON_CONTROL_GET:
 		data = get_value(self, client, &key, &response);
 		break;
@@ -304,6 +310,10 @@ bool buxtond_handle_message(BuxtonDaemon *self, client_list_item *client, size_t
 			buxton_log("Failed to serialize remove_group response message\n");
 			abort();
 		}
+		break;
+	case BUXTON_CONTROL_GET_KEY_TYPE:
+		//check if stuff is valid
+		//serialize the messase
 		break;
 	case BUXTON_CONTROL_GET:
 		if (data && !buxton_array_add(out_list, data)) {
@@ -669,6 +679,14 @@ void unset_value(BuxtonDaemon *self, client_list_item *client,
 
 	*status = 0;
 	buxton_debug("Daemon unset value completed\n");
+}
+
+BuxtonData *get_key_type(BuxtonDaemon *self, client_list_item *client,
+			_BuxtonKey *key, int32_t *status)
+{
+	//check stuff
+	//call buxton_direct_get_key_type, which will set the data var
+	return NULL;
 }
 
 BuxtonData *get_value(BuxtonDaemon *self, client_list_item *client,

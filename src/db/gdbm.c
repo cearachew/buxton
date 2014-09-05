@@ -197,6 +197,12 @@ end:
 	return ret;
 }
 
+static int get_key_type(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,
+			BuxtonString *label)
+{
+	return 0;
+}
+
 static int get_value(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,
 		      BuxtonString *label)
 {
@@ -425,6 +431,7 @@ _bx_export_ bool buxton_module_init(BuxtonBackend *backend)
 
 	/* Point the struct methods back to our own */
 	backend->set_value = &set_value;
+	backend->get_key_type = &get_key_type;
 	backend->get_value = &get_value;
 	backend->list_keys = &list_keys;
 	backend->unset_value = &unset_value;

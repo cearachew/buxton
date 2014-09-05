@@ -140,6 +140,18 @@ void buxton_close(BuxtonClient client)
 	free(c);
 }
 
+int buxton_get_key_type(BuxtonClient client,
+			BuxtonKey key,
+			BuxtonCallback callback,
+			void *data,
+			bool sync)
+{
+	//check values
+	//call buxton_wire_get_value
+	//if sync, call buxton_wire_get_response
+	return 0;
+}
+
 int buxton_get_value(BuxtonClient client,
 		     BuxtonKey key,
 		     BuxtonCallback callback,
