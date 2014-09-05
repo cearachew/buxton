@@ -153,6 +153,7 @@ int buxton_get_key_type(BuxtonClient client,
 	int ret = 0;
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
+	//TODO: double check to see if i really need to have a type
 	if (!k || !(k->group.value) || !(k->name.value) ||
 		k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
 		return EINVAL;

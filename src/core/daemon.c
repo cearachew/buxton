@@ -92,6 +92,8 @@ bool parse_list(BuxtonControlMessage msg, size_t count, BuxtonData *list,
 		key->group = list[1].store.d_string;
 		break;
 	case BUXTON_CONTROL_GET_KEY_TYPE:
+		//TODO: remove this print statement!
+		printf("In daemon.c, parse_list, BUXTON_CONTROL_GET_KEY_TYPE case\n");
 		//set up stuff from the list
 		break;
 	case BUXTON_CONTROL_GET:
@@ -228,6 +230,8 @@ bool buxtond_handle_message(BuxtonDaemon *self, client_list_item *client, size_t
 		remove_group(self, client, &key, &response);
 		break;
 	case BUXTON_CONTROL_GET_KEY_TYPE:
+		//TODO: remove this print statement
+		printf("In daemon.c, buxtond_handle_message, 1st GET_KEY_TYPE case\n");
 		//type_data = get_key_type(self, client, &key, &response);
 		break;
 	case BUXTON_CONTROL_GET:
@@ -312,6 +316,8 @@ bool buxtond_handle_message(BuxtonDaemon *self, client_list_item *client, size_t
 		}
 		break;
 	case BUXTON_CONTROL_GET_KEY_TYPE:
+		//TODO: remove this print statement
+		printf("In daemon.c, buxtond_handle_message, 2nd GET_KEY_TYPE case\n");
 		//check if stuff is valid
 		//serialize the messase
 		break;
@@ -684,6 +690,8 @@ void unset_value(BuxtonDaemon *self, client_list_item *client,
 BuxtonData *get_key_type(BuxtonDaemon *self, client_list_item *client,
 			_BuxtonKey *key, int32_t *status)
 {
+	//TODO: remove this print statement
+	printf("In daemon.c, get_key_type function\n");
 	//check stuff
 	//call buxton_direct_get_key_type, which will set the data var
 	return NULL;
