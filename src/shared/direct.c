@@ -38,6 +38,17 @@ bool buxton_direct_open(BuxtonControl *control)
 	return true;
 }
 
+int32_t buxton_direct_get_key_type(BuxtonControl *control, _BuxtonKey *key,
+				BuxtonData *data, BuxtonString *data_label,
+				BuxtonString *client_label)
+{
+	//TODO: remove this print statement!
+	printf("in direct.c, buxton_direct_get_key_type, dummy function\n");
+	data->type = UINT32;
+	data->store.d_uint32 = FLOAT;
+	return 0;
+}
+
 int32_t buxton_direct_get_value(BuxtonControl *control, _BuxtonKey *key,
 			     BuxtonData *data, BuxtonString *data_label,
 			     BuxtonString *client_label)

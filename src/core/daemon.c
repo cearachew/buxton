@@ -94,7 +94,27 @@ bool parse_list(BuxtonControlMessage msg, size_t count, BuxtonData *list,
 	case BUXTON_CONTROL_GET_KEY_TYPE:
 		//TODO: remove this print statement!
 		printf("In daemon.c, parse_list, BUXTON_CONTROL_GET_KEY_TYPE case\n");
-		//set up stuff from the list
+
+		if (count == 4) {
+			if (list[0].type != STRING || list[1].type != STRING ||
+			    list[2].type != STRING || list[3].type != UINT32) {
+				return false;   
+			}
+			key->layer = list[0].store.d_string;
+			key->group = list[1].store.d_string;
+			key->name = list[2].store.d_string;
+			key->type = list[3].store.d_uint32;
+		} else if (count == 3) {
+			if(list[0].type != STRING || list[1].type != STRING ||
+			   list[2].type != UINT32) {
+				return false;
+			}
+			key->group = list[0].store.d_string;
+			key->name = list[1].store.d_string;
+			key->type = list[2].store.d_uint32;
+		} else {
+			return false;
+		}
 		break;
 	case BUXTON_CONTROL_GET:
 		if (count == 4) {
@@ -232,7 +252,7 @@ bool buxtond_handle_message(BuxtonDaemon *self, client_list_item *client, size_t
 	case BUXTON_CONTROL_GET_KEY_TYPE:
 		//TODO: remove this print statement
 		printf("In daemon.c, buxtond_handle_message, 1st GET_KEY_TYPE case\n");
-		//type_data = get_key_type(self, client, &key, &response);
+		data = get_key_type(self, client, &key, &response);
 		break;
 	case BUXTON_CONTROL_GET:
 		data = get_value(self, client, &key, &response);
@@ -319,7 +339,20 @@ bool buxtond_handle_message(BuxtonDaemon *self, client_list_item *client, size_t
 		//TODO: remove this print statement
 		printf("In daemon.c, buxtond_handle_message, 2nd GET_KEY_TYPE case\n");
 		//check if stuff is valid
-		//serialize the messase
+		//serialize the message
+		if (data && !buxton_array_add(out_list, data)) {
+			abort();
+		}
+		response_len = buxton_serialize_message(&response_store,
+							BUXTON_CONTROL_STATUS,
+							msgid, out_list);
+		if (response_len == 0) {
+			if (errno == ENOMEM) {
+				abort();
+			}
+			buxton_log("Failed to serialize get_key_type response message\n");
+			abort();
+		}
 		break;
 	case BUXTON_CONTROL_GET:
 		if (data && !buxton_array_add(out_list, data)) {
@@ -692,9 +725,50 @@ BuxtonData *get_key_type(BuxtonDaemon *self, client_list_item *client,
 {
 	//TODO: remove this print statement
 	printf("In daemon.c, get_key_type function\n");
-	//check stuff
-	//call buxton_direct_get_key_type, which will set the data var
-	return NULL;
+
+	BuxtonData *data = NULL;
+	BuxtonString label;
+	int32_t ret;
+
+	assert(self);
+	assert(client);
+	assert(key);
+	assert(status);
+
+	*status = -1;
+
+	data = malloc0(sizeof(BuxtonData));
+	if (!data) {
+		abort();
+	}
+
+	if (key->layer.value) {
+		buxton_debug("Daemon getting [%s][%s]%s] \n", key->layer.value,
+				key->group.value, key->name.value);
+	} else {
+		buxton_debug("Daemon getting [%s][%s] \n", key->group.value,
+				key->name.value);
+	}
+	self->buxton.client.uid = client->cred.uid;
+	ret = buxton_direct_get_key_type(&self->buxton, key, data, &label,
+				client->smack_label);
+
+	if (ret) {
+		goto fail;
+	}
+
+	free(label.value);
+	buxton_debug("get key type returned successfully from db\n");
+
+	*status = 0;
+	goto end;
+
+fail:
+	buxton_debug("get key type failed\n");
+	free(data);
+	data = NULL;
+end:
+	return data;
 }
 
 BuxtonData *get_value(BuxtonDaemon *self, client_list_item *client,

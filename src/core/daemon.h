@@ -153,7 +153,7 @@ void remove_group(BuxtonDaemon *self, client_list_item *client,
  * @param status Will be set with the int32_t result of the operation
  * @returns BuxtonData Value stored for key if successful otherwise NULL
  */
-BuxtonData *get_value(BuxtonDaemon *self, client_list_item *client,
+BuxtonData *get_key_type(BuxtonDaemon *self, client_list_item *client,
 			_BuxtonKey *key, int32_t *status)
 	__attribute__((warn_unused_result));
 
