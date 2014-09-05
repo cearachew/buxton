@@ -146,10 +146,35 @@ int buxton_get_key_type(BuxtonClient client,
 			void *data,
 			bool sync)
 {
+	//TODO: remove this print function!
+	printf("buxton_get_key_type in lbuxton.c was called\n");
 	//check values
-	//call buxton_wire_get_value
+	bool r;
+	int ret = 0;
+	_BuxtonKey *k = (_BuxtonKey *)key;
+
+	if (!k || !(k->group.value) || !(k->name.value) ||
+		k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
+		return EINVAL;
+	}
+
+	//call buxton_wire_get_key_type
+	r = buxton_wire_get_key_type((_BuxtonClient *)client, k, callback, data);
+	if (!r) {
+		return -1;
+	}
+
 	//if sync, call buxton_wire_get_response
-	return 0;
+	if (sync) {
+		ret = buxton_wire_get_response(client);
+		if (ret <= 0) {
+			ret = -1;
+		} else {
+			ret = 0;
+		}
+	}
+
+	return ret;
 }
 
 int buxton_get_value(BuxtonClient client,

@@ -667,6 +667,8 @@ end:
 bool buxton_wire_get_key_type(_BuxtonClient *client, _BuxtonKey *key,
 			BuxtonCallback callback, void *data)
 {
+	//TODO: remove this print statement!
+	printf("buxton_wire_get_key_type in protocol.c called, dummy function\n");
 	return true;
 }
 
