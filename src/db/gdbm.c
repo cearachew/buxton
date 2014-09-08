@@ -200,6 +200,10 @@ end:
 static int get_key_type(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,
 			BuxtonString *label)
 {
+	//TODO: remove this print statement!
+	printf("in gdbm.c, get_key_type. dummy function\n");
+	data->type = UINT32;
+	data->store.d_uint32 = FLOAT;
 	return 0;
 }
 
