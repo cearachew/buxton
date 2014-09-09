@@ -78,6 +78,7 @@ dist_man_MANS = \
 	docs/buxton_client_handle_response.3 \
 	docs/buxton_close.3 \
 	docs/buxton_create_group.3 \
+	docs/buxton_get_key_type.3 \
 	docs/buxton_get_value.3 \
 	docs/buxton_key_create.3 \
 	docs/buxton_key_free.3 \
