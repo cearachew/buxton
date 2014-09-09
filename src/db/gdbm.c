@@ -200,11 +200,77 @@ end:
 static int get_key_type(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,
 			BuxtonString *label)
 {
-	//TODO: remove this print statement!
-	printf("in gdbm.c, get_key_type. dummy function\n");
+	GDBM_FILE db;
+	datum key_data;
+	datum value;
+	uint8_t *data_store = NULL;
+	int ret;
+	uint32_t sz;
+	BuxtonData *temp_data;
+
+	assert(layer);
+
+	temp_data = malloc0(sizeof(BuxtonData));
+	if (!temp_data) {
+		//TODO: remove this print statement
+		abort();
+	}
+
+	if (key->name.value) {
+		sz = key->group.length + key->name.length;
+		key_data.dptr = malloc(sz);
+		if (!key_data.dptr) {
+			abort();
+		}
+
+		/* size is string\0string\0 so just write, bonus for
+		   nil seperator being added without extra work */
+		key_data.dsize = (int)sz;
+		memcpy(key_data.dptr, key->group.value, key->group.length);
+		memcpy(key_data.dptr + key->group.length, key->name.value,
+			key->name.length);
+	} else {
+		key_data.dptr = malloc(key->group.length);
+		if (!key_data.dptr) {
+			abort();
+		}
+
+		memcpy(key_data.dptr, key->group.value, key->group.length);
+		key_data.dsize = (int)key->group.length;
+	}
+
+	memzero(&value, sizeof(datum));
+	db =db_for_resource(layer);
+	if (!db) {
+		/*
+		 * Set negative here to indicate layer not found
+		 * rather than key not found, optimization for
+		 * set value
+		 */
+		ret = -ENOENT;
+		goto end;
+	}
+
+	value = gdbm_fetch(db, key_data);
+	if (value.dsize <0 || value.dptr == NULL) {
+		ret = ENOENT;
+		goto end;
+	}
+
+	data_store = (uint8_t*)value.dptr;
+	buxton_deserialize(data_store, temp_data, label);
+
 	data->type = UINT32;
-	data->store.d_uint32 = FLOAT;
-	return 0;
+	data->store.d_uint32 = temp_data->type;
+	ret = 0;
+
+end:
+	free(key_data.dptr);
+	free(value.dptr);
+	free(temp_data);
+	data_store = NULL;
+
+	return ret;
 }
 
 static int get_value(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,

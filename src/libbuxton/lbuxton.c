@@ -146,9 +146,6 @@ int buxton_get_key_type(BuxtonClient client,
 			void *data,
 			bool sync)
 {
-	//TODO: remove this print function!
-	printf("buxton_get_key_type in lbuxton.c was called\n");
-	//check values
 	bool r;
 	int ret = 0;
 	_BuxtonKey *k = (_BuxtonKey *)key;
@@ -692,7 +689,7 @@ void *buxton_response_value(BuxtonResponse response)
 	}
 
 	type = buxton_response_type(response);
-	if (type == BUXTON_CONTROL_GET) {
+	if (type == BUXTON_CONTROL_GET || BUXTON_CONTROL_GET_KEY_TYPE) {
 		d = buxton_array_get(r->data, 1);
 	} else if (type == BUXTON_CONTROL_CHANGED) {
 		if (r->data->len) {

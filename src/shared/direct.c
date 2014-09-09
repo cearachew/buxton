@@ -42,11 +42,6 @@ int32_t buxton_direct_get_key_type(BuxtonControl *control, _BuxtonKey *key,
 				BuxtonData *data, BuxtonString *data_label,
 				BuxtonString *client_label)
 {
-	//TODO: remove this print statement!
-	printf("in direct.c, buxton_direct_get_key_type, dummy function\n");
-	data->type = UINT32;
-	data->store.d_uint32 = FLOAT;
-
 	BuxtonLayer *l;
 	BuxtonConfig *config;
 	BuxtonString layer = (BuxtonString){NULL, 0};
@@ -71,7 +66,7 @@ int32_t buxton_direct_get_key_type(BuxtonControl *control, _BuxtonKey *key,
 	HASHMAP_FOREACH(l, config->layers, i) {
 		key->layer.value = l->name.value;
 		key->layer.length = l->name.length;
-		ret = (int32_t)buxton_direct_get_value_for_layer(control, key,
+		ret = (int32_t)buxton_direct_get_key_type_for_layer(control, key,
 							&d, data_label,
 							client_label);
 		if (!ret) {
@@ -107,10 +102,11 @@ int32_t buxton_direct_get_key_type(BuxtonControl *control, _BuxtonKey *key,
 
 		return ret;
 	}
+
 	return ENOENT;
 }
 
-int32_t buxton_direct_get_key_type_for_layer(BuxtonControl *control,
+int buxton_direct_get_key_type_for_layer(BuxtonControl *control,
 						_BuxtonKey *key,
 						BuxtonData *data,
 						BuxtonString *data_label,
@@ -155,7 +151,7 @@ int32_t buxton_direct_get_key_type_for_layer(BuxtonControl *control,
 		if (!buxton_copy_key_group(key, &group)) {
 			abort();
 		}
-		ret = buxton_direct_get_key_type_for_layer(control, &group, &g,
+		ret = buxton_direct_get_value_for_layer(control, &group, &g,
 							&group_label, NULL);
 		if (ret) {
 			buxton_debug("Group %s for name %s missing for get value\n",
