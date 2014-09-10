@@ -44,7 +44,8 @@ int buxton_get_key_type(BuxtonClient \fIclient\fB,
 .SH "DESCRIPTION"
 .PP
 This function is used to get the type of value for a key\-name for
-\fIclient\fR. The key\-name is referenced by \fIkey\fR. If the layer
+\fIclient\fR. The key\-name is referenced by \fIkey\fR. The key\-type
+must be set to UNKNOWN. If the layer
 for \fIkey\fR is NULL, buxton will traverse layers in priority order
 searching for the key-name value, selecting the value for the first
 key\-name found\&. If the argument is non-NULL, the operation will
@@ -103,9 +104,9 @@ int main(void)
 
 /*
  * A fully qualified key-name is being created since both group and key-name are not null.
- * Group: "hello", Key-name: "test", Layer: "user", DataType: DOUBLE, but it doesn't matter
+ * Group: "hello", Key-name: "test", Layer: "user", DataType: UNKNOWN
  */
-	key = buxton_key_create("hello", "test", "user", DOUBLE);
+	key = buxton_key_create("hello", "test", "user", UNKNOWN);
 	if (!key) {
 		return -1;
 	}
