@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 
 	/* Get key type */
 	c_get_key_type = (Command) { "get-key-type", "Get the data type of a key",
-				2, 3, "[layer] group name", &cli_get_key_type, UINT32 };
+				2, 3, "[layer] group name", &cli_get_key_type, UNKNOWN };
 	hashmap_put(commands, c_get_key_type.name, &c_get_key_type);
 
 	/* SMACK labels */

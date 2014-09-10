@@ -53,6 +53,7 @@ typedef enum BuxtonDataType {
 	FLOAT, /**<Represents type of a float value */
 	DOUBLE, /**<Represents type of a double value */
 	BOOLEAN, /**<Represents type of a boolean value */
+	UNKNOWN, /**<Represents an unknown type of value */
 	BUXTON_TYPE_MAX
 } BuxtonDataType;
 

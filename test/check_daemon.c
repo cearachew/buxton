@@ -406,7 +406,7 @@ START_TEST(buxton_get_key_type_for_layer_check)
 {
 	BuxtonClient c = NULL;
 	BuxtonDataType type = STRING;
-	BuxtonKey key = buxton_key_create("group", "name", "test-gdbm-user", UINT32);
+	BuxtonKey key = buxton_key_create("group", "name", "test-gdbm-user", UNKNOWN);
 
 	fail_if(buxton_open(&c) == -1,
 		"Open failed with daemon.");
@@ -437,7 +437,7 @@ START_TEST(buxton_get_key_type_check)
 		"Failed to set second value.");
 	buxton_key_free(group);
 	buxton_key_free(key);
-	key = buxton_key_create("group", "name", NULL, UINT32);
+	key = buxton_key_create("group", "name", NULL, UNKNOWN);
 	fail_if(buxton_get_key_type(c, key, client_get_key_type_test,
 					&type, true),
 		"Retrieving type from buxton gdbm backend failed.");
@@ -1030,7 +1030,7 @@ START_TEST(get_key_type_check)
 	key.layer = buxton_string_pack("test-gdbm-user");
 	key.group = buxton_string_pack("daemon-check");
 	key.name = buxton_string_pack("name");
-	key.type = UINT32;
+	key.type = UNKNOWN;
 
 	value = get_key_type(&server, &client, &key, &status);
 	fail_if(!value, "Failed to get value");

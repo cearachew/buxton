@@ -70,9 +70,9 @@ int main(void)
 
 /*
  * A fully qualified key-name is being created since both group and key-name are not null.
- * Group: "hello", Key-name: "test", Layer: "user", DataType: DOUBLE, but it doesn't matter
+ * Group: "hello", Key-name: "test", Layer: "user", DataType: UNKNOWN
  */
-	key = buxton_key_create("hello", "test", "user", DOUBLE);
+	key = buxton_key_create("hello", "test", "user", UNKNOWN);
 	if (!key) {
 		return -1;
 	}

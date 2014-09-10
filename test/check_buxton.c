@@ -152,12 +152,12 @@ START_TEST(buxton_direct_get_key_type_for_layer_check)
 	key.layer = buxton_string_pack("test-gdbm");
 	key.group = buxton_string_pack("bxt_test_group");
 	key.name = buxton_string_pack("bxt_test_key");
-	key.type = UINT32;
+	key.type = UNKNOWN;
 
 	c.client.uid = getuid();
 	fail_if(buxton_direct_open(&c) == false,
 		"Direct open failed without daemon.");
-	fail_if(buxton_direct_get_key_type_for_layer(&c, &key, &result, &dlabel, NULL),
+	fail_if(buxton_direct_get_value_for_layer(&c, &key, &result, &dlabel, NULL),
 		"Retrieving key type from buxton gdbm backend failed.");
 	fail_if(result.type != UINT32,
 		"Buxton gdbm backend returned incorrect result type.");
@@ -217,7 +217,9 @@ START_TEST(buxton_direct_get_key_type_check)
 		"Failed to allocate test string.");
 	fail_if(buxton_direct_set_value(&c, &key, &data, NULL) == false,
 		"Failed to set second value.");
-	fail_if(buxton_direct_get_key_type(&c, &key, &result, &dlabel, NULL) == -1,
+
+	key.type = UNKNOWN;
+	fail_if(buxton_direct_get_value(&c, &key, &result, &dlabel, NULL) == -1,
 		"Retrieving key type from buxton gdbm backend failed.");
 	fail_if(result.type != UINT32,
 		"Buxton gdbm backend returned incorrect result type.");
@@ -1000,7 +1002,7 @@ START_TEST(buxton_wire_get_key_type_check)
 	key.layer = buxton_string_pack("layer");
 	key.group = buxton_string_pack("group");
 	key.name = buxton_string_pack("name");
-	key.type = UINT32;
+	key.type = UNKNOWN;
 	fail_if(buxton_wire_get_key_type(&client, &key, NULL,
 				      NULL) != true,
 		"Failed to properly get value 1");
@@ -1021,7 +1023,7 @@ START_TEST(buxton_wire_get_key_type_check)
 		"Failed to set correct group 1");
 	fail_if(!streq(list[2].store.d_string.value, "name"),
 		"Failed to set correct name 1");
-	fail_if(list[3].store.d_uint32 != UINT32,
+	fail_if(list[3].store.d_uint32 != UNKNOWN,
 		"Failed to set correct type 1");
 
 	free(list[0].store.d_string.value);
@@ -1047,7 +1049,7 @@ START_TEST(buxton_wire_get_key_type_check)
 		"Failed to set correct group 2");
 	fail_if(!streq(list[1].store.d_string.value, "name"),
 		"Failed to set correct name 2");
-	fail_if(list[2].store.d_uint32 != UINT32,
+	fail_if(list[2].store.d_uint32 != UNKNOWN,
 		"Failed to set correct type 2");
 
 	free(list[0].store.d_string.value);

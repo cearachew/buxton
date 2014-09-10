@@ -150,19 +150,15 @@ int buxton_get_key_type(BuxtonClient client,
 	int ret = 0;
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
-	//TODO: double check to see if i really need to have a type
-	if (!k || !(k->group.value) || !(k->name.value) ||
-		k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
+	if (!k || !(k->group.value) || !(k->name.value) || k->type != UNKNOWN) {
 		return EINVAL;
 	}
 
-	//call buxton_wire_get_key_type
 	r = buxton_wire_get_key_type((_BuxtonClient *)client, k, callback, data);
 	if (!r) {
 		return -1;
 	}
 
-	//if sync, call buxton_wire_get_response
 	if (sync) {
 		ret = buxton_wire_get_response(client);
 		if (ret <= 0) {
@@ -186,7 +182,8 @@ int buxton_get_value(BuxtonClient client,
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
 	if (!k || !(k->group.value) || !(k->name.value) ||
-	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
+	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX ||
+	    k->type == UNKNOWN) {
 		return EINVAL;
 	}
 
@@ -218,7 +215,8 @@ int buxton_register_notification(BuxtonClient client,
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
 	if (!k || !k->group.value || !k->name.value ||
-	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
+	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX ||
+	    k->type == UNKNOWN) {
 		return EINVAL;
 	}
 
@@ -251,7 +249,8 @@ int buxton_unregister_notification(BuxtonClient client,
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
 	if (!k || !k->group.value || !k->name.value ||
-	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
+	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX ||
+	    k->type == UNKNOWN) {
 		return EINVAL;
 	}
 
@@ -285,7 +284,8 @@ int buxton_set_value(BuxtonClient client,
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
 	if (!k || !k->group.value || !k->name.value || !k->layer.value ||
-	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX || !value) {
+	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX ||
+	    k->type == UNKNOWN || !value) {
 		return EINVAL;
 	}
 
@@ -454,7 +454,8 @@ int buxton_unset_value(BuxtonClient client,
 	_BuxtonKey *k = (_BuxtonKey *)key;
 
 	if (!k || !k->group.value || !k->name.value || !k->layer.value ||
-	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX) {
+	    k->type <= BUXTON_TYPE_MIN || k->type >= BUXTON_TYPE_MAX ||
+	    k->type == UNKNOWN) {
 		return EINVAL;
 	}
 

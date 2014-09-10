@@ -738,7 +738,7 @@ BuxtonData *get_key_type(BuxtonDaemon *self, client_list_item *client,
 				key->name.value);
 	}
 	self->buxton.client.uid = client->cred.uid;
-	ret = buxton_direct_get_key_type(&self->buxton, key, data, &label,
+	ret = buxton_direct_get_value(&self->buxton, key, data, &label,
 				client->smack_label);
 
 	if (ret) {

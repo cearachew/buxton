@@ -387,7 +387,7 @@ bool cli_get_key_type(BuxtonControl *control, BuxtonDataType type,
 
 	if (three != NULL) {
 		if (control->client.direct) {
-			ret = buxton_direct_get_key_type_for_layer(control, key,
+			ret = buxton_direct_get_value_for_layer(control, key,
 								&get, &dlabel,
 								NULL);
 		} else {
@@ -404,7 +404,8 @@ bool cli_get_key_type(BuxtonControl *control, BuxtonDataType type,
 		}
 	} else {
 		if (control->client.direct) {
-			ret_val = buxton_direct_get_key_type(control, key, &get, &dlabel, NULL);
+			ret_val = buxton_direct_get_value(control, key, &get,
+							&dlabel, NULL);
 			if (ret_val == 0) {
 				ret = true;     
 			}
