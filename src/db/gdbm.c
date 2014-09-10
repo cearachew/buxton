@@ -212,7 +212,6 @@ static int get_key_type(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,
 
 	temp_data = malloc0(sizeof(BuxtonData));
 	if (!temp_data) {
-		//TODO: remove this print statement
 		abort();
 	}
 
@@ -240,7 +239,7 @@ static int get_key_type(BuxtonLayer *layer, _BuxtonKey *key, BuxtonData *data,
 	}
 
 	memzero(&value, sizeof(datum));
-	db =db_for_resource(layer);
+	db = db_for_resource(layer);
 	if (!db) {
 		/*
 		 * Set negative here to indicate layer not found
