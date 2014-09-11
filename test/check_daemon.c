@@ -592,6 +592,78 @@ START_TEST(parse_list_check)
 	fail_if(key.type != l1[2].store.d_uint32,
 		"Failed to set correct unnotify type");
 
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 5, l2, &key, &value),
+		"Parsed bad get_key_type argument count");
+	l2[0].type = INT32;
+	l2[1].type = STRING;
+	l2[2].type = STRING;
+	l2[3].type = UINT32;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 4, l2, &key, &value),
+		"Parsed bad get_key_type type 1");
+	l2[0].type = STRING;
+	l2[1].type = FLOAT;
+	l2[2].type = STRING;
+	l2[3].type = UINT32;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 4, l2, &key, &value),
+		"Parsed bad get_key_type type 2");
+	l2[0].type = STRING;
+	l2[1].type = STRING;
+	l2[2].type = BOOLEAN;
+	l2[3].type = UINT32;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 4, l2, &key, &value),
+		"Parsed bad get_key_type type 3");
+	l2[0].type = STRING;
+	l2[1].type = STRING;
+	l2[2].type = STRING;
+	l2[3].type = STRING;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 4, l2, &key, &value),
+		"Parsed bad get_key_type type 4");
+	l2[0].type = STRING;
+	l2[1].type = STRING;
+	l2[2].type = STRING;
+	l2[3].type = UINT32;
+	l2[0].store.d_string = buxton_string_pack("s5");
+	l2[1].store.d_string = buxton_string_pack("s6");
+	l2[2].store.d_string = buxton_string_pack("s7");
+	l2[3].store.d_uint32 = UNKNOWN;
+	fail_if(!parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 4, l2, &key, &value),
+		"Unable to parse valid get_key_type 1");
+	fail_if(!streq(key.layer.value, l2[0].store.d_string.value),
+		"Failed to set correct get_key_type layer 1");
+	fail_if(!streq(key.group.value, l2[1].store.d_string.value),
+		"Failed to set correct get_key_type group 1");
+	fail_if(!streq(key.name.value, l2[2].store.d_string.value),
+		"Failed to set correct get_key_type name");
+	fail_if(key.type != l2[3].store.d_uint32,
+		"Failed to set correct get_key_type type 1");
+	l2[0].store.d_string = buxton_string_pack("s6");
+	l2[1].store.d_string = buxton_string_pack("s6");
+	l2[2].type = UINT32;
+	l2[2].store.d_uint32 = UNKNOWN;
+	fail_if(!parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 3, l2, &key, &value),
+		"Unable to parse valid get_key_type 2");
+	fail_if(!streq(key.group.value, l2[0].store.d_string.value),
+		"Failed to set correct get_key_type group 2");
+	fail_if(!streq(key.name.value, l2[1].store.d_string.value),
+		"Failed to set correct get_key_type name 2");
+	fail_if(key.type != l2[2].store.d_uint32,
+		"Failed to set correct get_key_type type 2");
+	l1[0].type = INT32;
+	l1[1].type = STRING;
+	l1[2].type = UINT32;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 3, l1, &key, &value),
+		"Parsed bad get_key_type type 5");
+	l1[0].type = STRING;
+	l1[1].type = FLOAT;
+	l1[2].type = UINT32;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 3, l1, &key, &value),
+		"Parsed bad get_key_type type 6");
+	l1[0].type = STRING;
+	l1[1].type = STRING;
+	l1[2].type = BOOLEAN;
+	fail_if(parse_list(BUXTON_CONTROL_GET_KEY_TYPE, 3, l1, &key, &value),
+		"Parsed bad get_key_type type 7");
+
 	fail_if(parse_list(BUXTON_CONTROL_GET, 5, l2, &key, &value),
 		"Parsed bad get argument count");
 	l2[0].type = INT32;
@@ -1580,6 +1652,118 @@ START_TEST(buxtond_handle_message_set_value_check)
 	hashmap_free(daemon.client_key_mapping);
 	buxton_direct_close(&daemon.buxton);
 	buxton_array_free(&out_list, NULL);
+}
+END_TEST
+
+START_TEST(buxtond_handle_message_get_key_type_check)
+{
+	int client, server;
+	BuxtonDaemon daemon;
+	BuxtonString slabel;
+	size_t size;
+	BuxtonData data1, data2, data3, data4;
+	client_list_item cl;
+	bool r;
+	BuxtonData *list;
+	BuxtonArray *out_list;
+	BuxtonArray *out_list2;
+	BuxtonControlMessage msg;
+	ssize_t csize;
+	ssize_t s;
+	uint8_t buf[4096];
+	uint32_t msgid;
+
+	setup_socket_pair(&client, &server);
+	out_list = buxton_array_new();
+	fail_if(!out_list, "Failed to allocate list");
+
+	cl.fd = server;
+	slabel = buxton_string_pack("_");
+	if (use_smack())
+		cl.smack_label = &slabel;
+	else
+		cl.smack_label = NULL;
+	cl.cred.uid = getuid();
+	daemon.buxton.client.uid = 1001;
+	fail_if(!buxton_cache_smack_rules(), "Failed to cache Smack rules");
+	fail_if(!buxton_direct_open(&daemon.buxton),
+		"Failed to open buxton direct connection");
+
+	data1.type = STRING;
+	data1.store.d_string = buxton_string_pack("test-gdbm-user");
+	data2.type = STRING;
+	data2.store.d_string = buxton_string_pack("daemon-check");
+	data3.type = STRING;
+	data3.store.d_string = buxton_string_pack("name");
+	data4.type = UINT32;
+	data4.store.d_uint32 = UNKNOWN;
+	r = buxton_array_add(out_list, &data1);
+	fail_if(!r, "Failed to add element to array");
+	r = buxton_array_add(out_list, &data2);
+	fail_if(!r, "Failed to add element to array");
+	r = buxton_array_add(out_list, &data3);
+	fail_if(!r, "Failed to add element to array");
+	r = buxton_array_add(out_list, &data4);
+	fail_if(!r, "Failed to add element to array");
+	size = buxton_serialize_message(&cl.data, BUXTON_CONTROL_GET_KEY_TYPE, 0,
+					out_list);
+	fail_if(size == 0, "Failed to serialize message");
+	r = buxtond_handle_message(&daemon, &cl, size);
+	free(cl.data);
+	fail_if(!r, "Failed to get message 1");
+
+	s = read(client, buf, 4096);
+	fail_if(s < 0, "Read from client failed");
+	csize = buxton_deserialize_message(buf, &msg, (size_t)s, &msgid, &list);
+	fail_if(csize != 2, "Failed to get valid message from buffer");
+	fail_if(msg != BUXTON_CONTROL_STATUS,
+		"Failed to get correct control type");
+	fail_if(msgid != 0, "Failed to get correct message id");
+	fail_if(list[0].type != INT32, "Failed to get correct response type");
+	fail_if(list[0].store.d_int32 != 0,
+		"Failed to get value");
+	fail_if(list[1].type != UINT32, "Failed to get correct value type");
+	fail_if(list[1].store.d_uint32 != (uint32_t)STRING,
+		"Failed to get correct value");
+
+	free(list[1].store.d_string.value);
+	free(list);
+
+	out_list2 = buxton_array_new();
+	fail_if(!out_list2, "Failed to allocate list 2");
+	r = buxton_array_add(out_list2, &data2);
+	fail_if(!r, "Failed to add element to array 2");
+	r = buxton_array_add(out_list2, &data3);
+	fail_if(!r, "Failed to add element to array 2");
+	r = buxton_array_add(out_list2, &data4);
+	fail_if(!r, "Failed to add element to array 2");
+	size = buxton_serialize_message(&cl.data, BUXTON_CONTROL_GET_KEY_TYPE, 0,
+					out_list2);
+	fail_if(size == 0, "Failed to serialize message 2");
+	r = buxtond_handle_message(&daemon, &cl, size);
+	free(cl.data);
+	fail_if(!r, "Failed to get message 2");
+
+	s = read(client, buf, 4096);
+	fail_if(s < 0, "Read from client failed 2");
+	csize = buxton_deserialize_message(buf, &msg, (size_t)s, &msgid, &list);
+	fail_if(csize != 2, "Failed to get correct response to get 2");
+	fail_if(msg != BUXTON_CONTROL_STATUS,
+		"Failed to get correct control type 2");
+	fail_if(msgid != 0, "Failed to get correct message id 2");
+	fail_if(list[0].type != INT32, "Failed to get correct response type 2");
+	fail_if(list[0].store.d_int32 != 0,
+		"Failed to get value 2");
+	fail_if(list[1].type != UINT32, "Failed to get correct value type 2");
+	fail_if(list[1].store.d_uint32 != (uint32_t)STRING,
+		"Failed to get correct value 2");
+
+	free(list[1].store.d_string.value);
+	free(list);
+	close(client);
+	buxton_direct_close(&daemon.buxton);
+	buxton_array_free(&out_list, NULL);
+	buxton_array_free(&out_list2, NULL);
 }
 END_TEST
 
@@ -2881,6 +3065,7 @@ daemon_suite(void)
 	tcase_add_test(tc, buxtond_handle_message_remove_group_check);
 	tcase_add_test(tc, buxtond_handle_message_set_label_check);
 	tcase_add_test(tc, buxtond_handle_message_set_value_check);
+	tcase_add_test(tc, buxtond_handle_message_get_key_type_check);
 	tcase_add_test(tc, buxtond_handle_message_get_check);
 	tcase_add_test(tc, buxtond_handle_message_notify_check);
 	tcase_add_test(tc, buxtond_handle_message_unset_check);
