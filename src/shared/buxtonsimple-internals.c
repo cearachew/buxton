@@ -246,6 +246,52 @@ void _rg_cb(BuxtonResponse response, void *data)
 	}
 }
 
+BuxtonKey * _buxton_notify_create(char *layer, char *group, char *name)
+{
+	BuxtonKey *ret = NULL;
+	BuxtonKey key;
+	BuxtonDataType type = UNKNOWN;
+
+	if (!group || !name) {
+		return ret;
+	}
+
+	if (!client) {
+		return ret;
+	}
+
+	key = buxton_key_create(group, name, layer, UNKNOWN);
+
+	if (buxton_get_key_type(client, key, _gkt_cb, &type, true)) {
+		buxton_debug("Get key type call failed\n");
+		return ret;
+	}
+
+	if (type > BUXTON_TYPE_MIN && type < BUXTON_TYPE_MAX && type != UNKNOWN) {
+		*ret = buxton_key_create(group, name, layer, type);
+	} else {
+		buxton_debug("Invalid type returned\n");
+	}
+
+	return ret;
+}
+
+void _gkt_cb(BuxtonResponse response, void *data)
+{
+	BuxtonDataType *ret = (BuxtonDataType*) data;
+
+	if (buxton_response_status(response) != 0) {
+		
+		buxton_debug("Failed to get type\n");
+		return;
+	} else {
+		buxton_debug("Get successful, got type\n");
+		void *p = buxton_response_value(response);
+		*ret = *(BuxtonDataType*)p;
+		return;
+	}
+}
+
 /*
  * Editor modelines  -	http://www.wireshark.org/tools/modelines.html
  *

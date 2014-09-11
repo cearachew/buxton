@@ -55,15 +55,13 @@ void sbuxton_close(void)
 }
 
 /* Register a key for notification */
-void sbuxton_register_notification(char *key, NotifyCallback callback)
+void sbuxton_register_notify(char *key, NotifyCallback callback)
 {
 	if (!client_locked || !client) {
 		buxton_debug("Connection must first be opened via sbuxton_open");
 		errno = ENOTCONN;
 		return;
 	}
-
-	BuxtonKey key = buxton_key
 }
 
 /* Initialization of group */
