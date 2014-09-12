@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "buxtonclient.h"
 #include "buxtonsimple.h"
 //#include "buxtonsimple-internals.h"
 #include "log.h"
@@ -62,6 +63,31 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 		errno = ENOTCONN;
 		return;
 	}
+
+	saved_errno = errno;
+	BuxtonKey *_key = NULL;
+	_BuxtonClient *c = NULL;
+
+	c = (_BuxtonClient *)&client;
+
+	_key = _buxton_notify_create(_layer, _group, key);
+
+	if(buxton_register_notification(client, *_key, _rn_cb, &callback, false)) {
+		buxton_debug("register notification call failed\n");
+		errno = EACCES;
+		return;
+	}
+	if (!ecore_init()) {
+		buxton_debug("could not initialize ecore\n");
+		errno = EACCES;
+		return;
+	} else {
+		errno = saved_errno;
+	}
+
+	Ecore_Fd_Handler *e_handler = ecore_main_fd_handler_add(c->fd,
+					ECORE_FD_READ | ECORE_FD_ERROR,
+					_buxton_update_cb, NULL, NULL, NULL); 	
 }
 
 /* Initialization of group */

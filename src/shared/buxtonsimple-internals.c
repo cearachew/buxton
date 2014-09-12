@@ -21,15 +21,15 @@
 BuxtonClient client = NULL;
 
 /* Callback for ecore_main_fd_handler_add */
-Eina_bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
+Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
 {
 	/* buxton_client_handle_response will call notify_cb function. */
-	ssize_t handled = buxton_client_handle_response(buxton_client);
+	ssize_t handled = buxton_client_handle_response(client);
 	return (handled >= 0);
 }
 
 /* Callback for buxton_register_notification */
-void _notify_cb(BuxtonResponse response, void *data)
+void _rn_cb(BuxtonResponse response, void *data)
 {
 	//data = NotifyCallback type function
 	

@@ -95,9 +95,9 @@ extern BuxtonClient client;
  * @return Returns true for success, false for failure as the return value of
  *      buxton_client_handle_response
  */
-Eina_bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler);
+Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler);
 
-void _notify_cb(BuxtonResponse response, void *data);
+void _rn_cb(BuxtonResponse response, void *data);
 
 /**
  * Checks for client connection and opens it if client connection is not open
