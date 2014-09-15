@@ -25,6 +25,10 @@ AM_CPPFLAGS = \
 	-D_BUXTON_SOCKET=\"$(BUXTON_SOCKET)\" \
 	-D_SMACK_LOAD_FILE=\"$(SMACK_LOAD_FILE)\"
 
+#	-I /usr/include/ecore-1
+#	-I /usr/include/eina-1
+#	-I /usr/include/eina-1/eina
+
 AM_LDFLAGS = \
 	-rdynamic
 
@@ -242,7 +246,7 @@ libbuxtonsimple_shared_la_SOURCES = \
 libbuxtonsimple_shared_la_LDFLAGS = \
 	$(AM_LDFLAGS) \
 	-static \
-	`pkg-config --libs --cflags ecore`
+	`pkg-config --cflags --libs ecore`
 
 include_HEADERS += \
 	src/include/buxton.h \

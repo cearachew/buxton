@@ -20,21 +20,14 @@
 
 BuxtonClient client = NULL;
 
-/* Callback for ecore_main_fd_handler_add */
-Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
-{
-	/* buxton_client_handle_response will call notify_cb function. */
-	ssize_t handled = buxton_client_handle_response(client);
-	return (handled >= 0);
-}
+typedef void (*NotifyCallback)(void *, char*);
 
-/* Callback for buxton_register_notification */
-void _rn_cb(BuxtonResponse response, void *data)
-{
-	//data = NotifyCallback type function
-	
-}
+typedef struct nstatus {
+	int status;
+	NotifyCallback callback;
+} nstatus;
 
+extern BuxtonClient client;
 /* Make sure client connection is open */
 int _client_connection(void)
 {
@@ -246,11 +239,44 @@ void _rg_cb(BuxtonResponse response, void *data)
 	}
 }
 
+/* Callback for ecore_main_fd_handler_add */
+Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
+{
+	buxton_debug("_buxton_update_cb calling handle_response...\n");
+	/* buxton_client_handle_response will call notify_cb function. */
+	ssize_t handled = buxton_client_handle_response(client);
+	return (handled >= 0);
+}
+
+/* Callback for buxton_register_notification */
+void _rn_cb(BuxtonResponse response, void *data)
+{
+	nstatus *ret = (nstatus *)data;
+
+	BuxtonKey key = NULL;
+	char *name = NULL;
+	void *value = NULL;
+
+	if (buxton_response_status(response) != 0) {
+		buxton_debug("Notify failed\n");
+		ret->status = -1;
+		return;
+	}
+
+	key = buxton_response_key(response);
+	name = buxton_key_get_name(key);
+	value = buxton_response_value(response);
+
+	buxton_debug("Calling client cb....\n");
+	ret->callback(value, name);
+}
+
 BuxtonKey * _buxton_notify_create(char *layer, char *group, char *name)
 {
 	BuxtonKey *ret = NULL;
 	BuxtonKey key;
 	BuxtonDataType type = UNKNOWN;
+	char *stype;
 
 	if (!group || !name) {
 		return ret;
@@ -267,8 +293,63 @@ BuxtonKey * _buxton_notify_create(char *layer, char *group, char *name)
 		return ret;
 	}
 
+	switch (type) {
+		case BUXTON_TYPE_MIN:
+		{
+			stype = "invalid- still min";
+		}
+		case STRING:
+		{
+			stype = "string";
+			break;
+		}
+		case INT32:
+		{
+			stype = "int32_t";
+			break;
+		}
+		case UINT32:
+		{
+			stype = "uint32_t";
+			break;
+		}
+		case INT64:
+		{
+			stype = "int64_t";
+			break;
+		}
+		case UINT64:
+		{
+			stype = "uint64_t";
+			break;
+		}
+		case FLOAT:
+		{
+			stype = "float";
+			break;
+		}
+		case DOUBLE:
+		{
+			stype = "double";
+			break;
+		}
+		case BOOLEAN:
+		{
+			stype = "bool";
+			break;
+		}
+		default:
+		{
+			stype = "unknown";
+			break;
+		}
+	}
+
+	printf("type of key is: %d = %s\n", type, stype);
+
 	if (type > BUXTON_TYPE_MIN && type < BUXTON_TYPE_MAX && type != UNKNOWN) {
-		*ret = buxton_key_create(group, name, layer, type);
+		BuxtonKey k = buxton_key_create(group, name, layer, type);
+		ret = &k;
 	} else {
 		buxton_debug("Invalid type returned\n");
 	}

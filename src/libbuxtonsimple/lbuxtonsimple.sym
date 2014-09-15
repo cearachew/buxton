@@ -2,6 +2,7 @@ BUXTONSIMPLE_1 {
 	global:
 		sbuxton_open;
 		sbuxton_close;
+		sbuxton_register_notify;
 		sbuxton_set_group;
 		sbuxton_set_int32;
 		sbuxton_get_int32;

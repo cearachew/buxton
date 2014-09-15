@@ -82,10 +82,16 @@ typedef struct vstatus {
 /*
  * typedef for NotifyCallback, the format the client program's callback function
  * to sbuxton_register_notify must be in
- */ 
+ *
 typedef void (*NotifyCallback)(void *, char*);
 
+typedef struct nstatus {
+	int status;
+	NotifyCallback callback;
+} nstatus;
+
 extern BuxtonClient client;
+*/
 
 /**
  * Callback for adding the notification fd to ecore_main_fd_handler_add

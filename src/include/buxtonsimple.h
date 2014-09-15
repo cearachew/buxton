@@ -19,7 +19,7 @@
  */
 
 #include "buxton.h"
-#include "buxtonsimple-internals.h"
+//#include "buxtonsimple-internals.h"
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
@@ -30,6 +30,15 @@
 #else
 #  define _bx_export_
 #endif
+
+typedef void (*NotifyCallback)(void *, char*);
+
+typedef struct nstatus {
+	int status;
+	NotifyCallback callback;
+} nstatus;
+
+extern BuxtonClient client;
 
 /*Buxton Simple API Methods*/
 /**

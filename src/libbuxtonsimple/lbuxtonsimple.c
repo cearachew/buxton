@@ -21,7 +21,7 @@
 
 #include "buxtonclient.h"
 #include "buxtonsimple.h"
-//#include "buxtonsimple-internals.h"
+#include "buxtonsimple-internals.h"
 #include "log.h"
 /* Max length of layer and group names  */
 #define MAX_LG_LEN 256
@@ -31,6 +31,7 @@ static char _layer[MAX_LG_LEN];
 static char _group[MAX_LG_LEN];
 static int saved_errno;
 static bool client_locked = false;
+static bool fd_added = false;
 
 /* Open a client with a flag that does not let other functions close it */
 void sbuxton_open(void)
@@ -64,30 +65,38 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 		return;
 	}
 
+	nstatus cb;
 	saved_errno = errno;
 	BuxtonKey *_key = NULL;
 	_BuxtonClient *c = NULL;
 
-	c = (_BuxtonClient *)&client;
+	c = (_BuxtonClient *)client;
 
 	_key = _buxton_notify_create(_layer, _group, key);
 
-	if(buxton_register_notification(client, *_key, _rn_cb, &callback, false)) {
-		buxton_debug("register notification call failed\n");
+	if (!_key) {
 		errno = EACCES;
 		return;
 	}
-	if (!ecore_init()) {
-		buxton_debug("could not initialize ecore\n");
+
+	cb.callback = callback;
+	cb.status = 0;
+
+	if(buxton_register_notification(client, *_key, _rn_cb, &cb, false)) {
+		buxton_debug("register notification call failed\n");
 		errno = EACCES;
 		return;
 	} else {
 		errno = saved_errno;
 	}
 
-	Ecore_Fd_Handler *e_handler = ecore_main_fd_handler_add(c->fd,
+	if (!fd_added) {
+		Ecore_Fd_Handler *e_handler = ecore_main_fd_handler_add(c->fd,
 					ECORE_FD_READ | ECORE_FD_ERROR,
-					_buxton_update_cb, NULL, NULL, NULL); 	
+					_buxton_update_cb, NULL, NULL, NULL);
+		fd_added = true;
+	}
+	buxton_debug("registration successful\n");
 }
 
 /* Initialization of group */
