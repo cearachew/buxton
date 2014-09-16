@@ -41,24 +41,7 @@ typedef struct nstatus {
 extern BuxtonClient client;
 
 /*Buxton Simple API Methods*/
-/**
- * Opens a client connection to the buxtond daemon, then set a flag to disable
- * opens and closes by other funtions in the API.
- */
-_bx_export_ void sbuxton_open(void);
-/*
- * Closes the client connection to the buxtond daemon if it exists, then clears
- * the flag to allow opens and closes by other functions in the API.
- */
-_bx_export_ void sbuxton_close(void);
-/*
- * Registers a notification with Ecore for the key name given and the current
- * group and layer. Calls callback with the key name and the new value when
- * the value for that key is changed. On failure, sets errno.
- * @param key A key name that is a string (char *)
- * @param callback A function pointer that take a char * and a void * as arguments
- *	and returns void
- */
+
 _bx_export_ void sbuxton_register_notify(char *key, NotifyCallback callback);
 /* adds the BuxtonClient client's file descriptor to the ecore main loop
  * fd handler along with the _buxton_update_cb function
