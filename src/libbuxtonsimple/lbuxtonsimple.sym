@@ -3,6 +3,7 @@ BUXTONSIMPLE_1 {
 		sbuxton_open;
 		sbuxton_close;
 		sbuxton_register_notify;
+		sbuxton_register_ecore;
 		sbuxton_set_group;
 		sbuxton_set_int32;
 		sbuxton_get_int32;

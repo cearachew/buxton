@@ -31,7 +31,6 @@ static char _layer[MAX_LG_LEN];
 static char _group[MAX_LG_LEN];
 static int saved_errno;
 static bool client_locked = false;
-static bool fd_added = false;
 
 /* Open a client with a flag that does not let other functions close it */
 void sbuxton_open(void)
@@ -68,9 +67,6 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 	nstatus cb;
 	saved_errno = errno;
 	BuxtonKey *_key = NULL;
-	_BuxtonClient *c = NULL;
-
-	c = (_BuxtonClient *)client;
 
 	_key = _buxton_notify_create(_layer, _group, key);
 
@@ -90,13 +86,22 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 		errno = saved_errno;
 	}
 
-	if (!fd_added) {
-		Ecore_Fd_Handler *e_handler = ecore_main_fd_handler_add(c->fd,
+	buxton_debug("registration successful\n");
+}
+
+/* add the client's fd to the ecore main loop */
+void sbuxton_register_ecore(void)
+{
+	_BuxtonClient *c = NULL;
+
+	c = (_BuxtonClient *)client;
+
+	Ecore_Fd_Handler *e_handler = ecore_main_fd_handler_add(c->fd,
 					ECORE_FD_READ | ECORE_FD_ERROR,
 					_buxton_update_cb, NULL, NULL, NULL);
-		fd_added = true;
+	if (!e_handler) {
+		buxton_debug("Call to ecore_main_fd_handler_add failed\n");
 	}
-	buxton_debug("registration successful\n");
 }
 
 /* Initialization of group */

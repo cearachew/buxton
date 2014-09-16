@@ -60,7 +60,10 @@ _bx_export_ void sbuxton_close(void);
  *	and returns void
  */
 _bx_export_ void sbuxton_register_notify(char *key, NotifyCallback callback);
-
+/* adds the BuxtonClient client's file descriptor to the ecore main loop
+ * fd handler along with the _buxton_update_cb function
+ */
+_bx_export_ void sbuxton_register_ecore(void);
 /**
  * Creates a group if it does not exist and uses that group for all following get and set calls
  * If the group already exists, it will be used for all following get and set calls
