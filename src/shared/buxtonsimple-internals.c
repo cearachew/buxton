@@ -16,6 +16,7 @@
 
 #include "buxton.h"
 #include "buxtonsimple-internals.h"
+#include "buxtonresponse.h"
 #include "log.h"
 
 BuxtonClient client = NULL;
@@ -252,7 +253,7 @@ Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
 void _rn_cb(BuxtonResponse response, void *data)
 {
 	nstatus *ret = (nstatus *)data;
-
+	NotifyCallback cb; 
 	BuxtonKey key = NULL;
 	char *name = NULL;
 	void *value = NULL;
@@ -267,30 +268,37 @@ void _rn_cb(BuxtonResponse response, void *data)
 	name = buxton_key_get_name(key);
 	value = buxton_response_value(response);
 
+	buxton_debug("respnse type %d\n", BUXTON_CONTROL_CHANGED == buxton_response_type(response));
+	if (!value) {
+		buxton_debug("Response, but no value. Weeeeiiiiiirrrrrd\n");
+		return;
+	}
+
 	buxton_debug("Calling client cb....\n");
-	ret->callback(value, name);
+	cb = (NotifyCallback)ret->callback;
+
+	cb(value, name);
 }
 
-BuxtonKey * _buxton_notify_create(char *layer, char *group, char *name)
+BuxtonKey _buxton_notify_create(char *layer, char *group, char *name)
 {
-	BuxtonKey *ret = NULL;
 	BuxtonKey key;
 	BuxtonDataType type = UNKNOWN;
 	char *stype;
 
 	if (!group || !name) {
-		return ret;
+		return NULL;
 	}
 
 	if (!client) {
-		return ret;
+		return NULL;
 	}
 
 	key = buxton_key_create(group, name, layer, UNKNOWN);
 
 	if (buxton_get_key_type(client, key, _gkt_cb, &type, true)) {
 		buxton_debug("Get key type call failed\n");
-		return ret;
+		return NULL;
 	}
 
 	switch (type) {
@@ -349,12 +357,12 @@ BuxtonKey * _buxton_notify_create(char *layer, char *group, char *name)
 
 	if (type > BUXTON_TYPE_MIN && type < BUXTON_TYPE_MAX && type != UNKNOWN) {
 		BuxtonKey k = buxton_key_create(group, name, layer, type);
-		ret = &k;
+		return k;
 	} else {
 		buxton_debug("Invalid type returned\n");
 	}
 
-	return ret;
+	return NULL;
 }
 
 void _gkt_cb(BuxtonResponse response, void *data)

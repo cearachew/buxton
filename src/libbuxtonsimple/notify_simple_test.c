@@ -34,45 +34,20 @@
 #include "buxtonsimple.h"
 
 /* DEMONSTRATION */
-void tk_s5_notify_cb(void *key_data, char *key_name)
-{
-	//tk_s5 is a STRING
-	char *data = (char *)key_data;
-	printf("key %s was changed to value %s\n", key_name, data);
-}
-
 void tk_i32_notify_cb(void *key_data, char *key_name)
 {
 	//tk_s6 is a INT32
 	int32_t *data = (int32_t *)key_data;
 	printf("key %s was changed to value %d\n", key_name, *data);
-	if (*data == 125) {
-		ecore_shutdown();
-	}
 }
 
 int main(void)
 {
-	//first test if stuff works with sbuxton_open and sbuxton_close
-	sbuxton_open();
-	
 	/* Create group */
 	errno = 0;
 	sbuxton_set_group("tg_s5", "user");
 	printf("set_group: 'tg_s5', 'user', Error number: %s.\n", strerror(errno));
 
-	/* Test string setting */
-	srand((unsigned)time(NULL));
-	char * s1="Watermelon";
-	printf("value should be set to %s.\n", s1);
-	errno = 0;
-	sbuxton_set_string("tk_s5", s1);
-	printf("set_string: 'tg_s5', 'tk_s5', Error number: %s.\n", strerror(errno));
-
-	/* Test string getting */
-	char * sv1 = sbuxton_get_string("tk_s5");
-	printf("Got value: %s(string).\n", sv1);		
-	printf("get_string: 'tk_s5', Error number: %s.\n", strerror(errno));
 
 	/* Test Int setting */
 	int32_t i32 = (int32_t) rand() % 50 + 1;
@@ -80,11 +55,6 @@ int main(void)
 	errno = 0;
 	sbuxton_set_int32("tk_i32", i32);
 	printf("set_int32: 'tg_s5', 'tk_i32', Error number: %s.\n", strerror(errno));
-	/* Test uint32 getting */
-	errno = 0;
-	int32_t i32v = sbuxton_get_int32("tk_i32");
-	printf("Got value: %d(int32_t).\n", i32v);
-	printf("get_int32: 'tg_s3', 'tk_i32', Error number: %s.\n", strerror(errno));
 
 	if (!ecore_init()) {
 		printf("Could not initialize ecore");
@@ -92,10 +62,12 @@ int main(void)
 	}
 
 	// Get notifications
-	printf("Register for string tk_s5\n");
-	sbuxton_register_notify("tk_s5", tk_s5_notify_cb);
 	printf("Register for int32_t tk_i32\n");
-	sbuxton_register_notify("tk_i32", tk_i32_notify_cb);
+	sbuxton_register_notify("tk_i32", &tk_i32_notify_cb);
+
+	//register in ecore
+	printf("Register file descriptor in ecore handler\n");
+	sbuxton_register_ecore();
 
 	//start_main_loop
 	printf("Start mainloop\n");
@@ -112,9 +84,5 @@ int main(void)
 	//shutdown main loop
 	ecore_shutdown();
 
-	//close connection
-	sbuxton_close();
-
-	//end testing with open and close
 	return 0;
 }

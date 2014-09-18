@@ -1,6 +1,7 @@
 BUXTONSIMPLE_1 {
 	global:
 		sbuxton_register_notify;
+		sbuxton_unregister_notify;
 		sbuxton_register_ecore;
 		sbuxton_set_group;
 		sbuxton_set_int32;

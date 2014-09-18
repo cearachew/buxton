@@ -38,8 +38,6 @@ typedef struct nstatus {
 	NotifyCallback callback;
 } nstatus;
 
-extern BuxtonClient client;
-
 /*Buxton Simple API Methods*/
 
 _bx_export_ void sbuxton_register_notify(char *key, NotifyCallback callback);

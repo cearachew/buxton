@@ -35,12 +35,6 @@ static int num_notify = 0;
 /* Register a key for notification */
 void sbuxton_register_notify(char *key, NotifyCallback callback)
 {
-	/*if (!client_locked || !client) {
-		buxton_debug("Connection must first be opened via sbuxton_open");
-		errno = ENOTCONN;
-		return;
-	} */
-
 	if (num_notify < 0) {
 		buxton_debug("Error in notification count\n");
 		return;
@@ -53,21 +47,28 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 		}
 	}
 
-	nstatus cb;
 	saved_errno = errno;
-	BuxtonKey *_key = NULL;
+	BuxtonKey _key;
 
 	_key = _buxton_notify_create(_layer, _group, key);
 
 	if (!_key) {
 		errno = EACCES;
+		goto end;
 		return;
 	}
 
-	cb.callback = callback;
-	cb.status = 0;
+	nstatus *cb = malloc(sizeof(nstatus));
 
-	if(buxton_register_notification(client, *_key, _rn_cb, &cb, false)) {
+	if (!cb) {
+		errno = ENOMEM;
+		goto end;
+	}
+
+	cb->callback = callback;
+	cb->status = 0;
+
+	if(buxton_register_notification(client, _key, _rn_cb, cb, false)) {
 		buxton_debug("Register notification call failed\n");
 		errno = EACCES;
 	} else {
@@ -76,14 +77,58 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 		++num_notify;
 	}
 
+end:
 	if (num_notify == 0) {
 		_client_disconnect();
 	}
 }
 
+void sbuxton_unregister_notify(char *key)
+{
+	if (num_notify == 0) {
+		buxton_debug("No notifications registered\n");
+		errno = EACCES;
+		return;
+	}
+
+	if (!client) {
+		buxton_debug("No client connected\n");
+		errno = ENOTCONN;
+		return;
+	}
+
+	saved_errno = errno;
+	BuxtonKey _key = NULL;
+
+	_key = _buxton_notify_create(_layer, _group, key);
+
+	if (!_key) {
+		errno = EACCES;
+		return;
+	}
+
+	if (buxton_unregister_notification(client, _key, NULL, NULL, true)) {
+		buxton_debug("Unregister notification failed\n");
+		errno = EACCES;
+	} else {
+		errno = saved_errno;
+		buxton_debug("Unregistration successful\n");
+		--num_notify;
+	}
+
+	if (num_notify == 0) {
+		_client_disconnect();
+	}		
+}
+
 /* add the client's fd to the ecore main loop */
 void sbuxton_register_ecore(void)
 {
+	if (!client) {
+		errno = ENOTCONN;
+		return;
+	}
+
 	_BuxtonClient *c = NULL;
 
 	c = (_BuxtonClient *)client;

@@ -88,10 +88,9 @@ typedef void (*NotifyCallback)(void *, char*);
 typedef struct nstatus {
 	int status;
 	NotifyCallback callback;
-} nstatus;
+} nstatus; */
 
 extern BuxtonClient client;
-*/
 
 /**
  * Callback for adding the notification fd to ecore_main_fd_handler_add
@@ -167,7 +166,7 @@ void _rg_cb(BuxtonResponse response, void *data);
  * @param name A group name that is a string (char *)
  * @return A BuxtonKey that is a group
  */
-BuxtonKey * _buxton_notify_create(char *layer, char *group, char *name);
+BuxtonKey _buxton_notify_create(char *layer, char *group, char *name);
 
 /**
  * Callback for buxton_get_key_type called in _buxton_notify_create
