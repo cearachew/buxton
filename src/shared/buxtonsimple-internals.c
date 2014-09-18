@@ -244,7 +244,6 @@ void _rg_cb(BuxtonResponse response, void *data)
 Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
 {
 	buxton_debug("_buxton_update_cb calling handle_response...\n");
-	/* buxton_client_handle_response will call notify_cb function. */
 	ssize_t handled = buxton_client_handle_response(client);
 	return (handled >= 0);
 }
@@ -268,9 +267,8 @@ void _rn_cb(BuxtonResponse response, void *data)
 	name = buxton_key_get_name(key);
 	value = buxton_response_value(response);
 
-	buxton_debug("respnse type %d\n", BUXTON_CONTROL_CHANGED == buxton_response_type(response));
 	if (!value) {
-		buxton_debug("Response, but no value. Weeeeiiiiiirrrrrd\n");
+		buxton_debug("No value, key was removed\n");
 		return;
 	}
 
