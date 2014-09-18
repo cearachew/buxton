@@ -25,10 +25,6 @@ AM_CPPFLAGS = \
 	-D_BUXTON_SOCKET=\"$(BUXTON_SOCKET)\" \
 	-D_SMACK_LOAD_FILE=\"$(SMACK_LOAD_FILE)\"
 
-#	-I /usr/include/ecore-1
-#	-I /usr/include/eina-1
-#	-I /usr/include/eina-1/eina
-
 AM_LDFLAGS = \
 	-rdynamic
 
@@ -466,7 +462,8 @@ bin_PROGRAMS += \
 	bxt_hello_unset \
 	bxt_hello_notify \
 	bxt_hello_notify_multi \
-	bxt_hello_simple
+	bxt_hello_simple \
+	bxt_hello_notify_simple
 
 # Timing test
 bxt_timing_SOURCES = \
@@ -544,6 +541,14 @@ bxt_hello_simple_SOURCES = \
 bxt_hello_simple_CFLAGS = \
 	$(AM_CFLAGS)
 bxt_hello_simple_LDADD = \
+	libbuxtonsimple.la
+
+bxt_hello_notify_simple_SOURCES = \
+	demo/hellonotifysimple.c
+bxt_hello_notify_simple_CFLAGS = \
+	$(AM_CFLAGS) \
+	`pkg-config --cflags --libs ecore`
+bxt_hello_notify_simple_LDADD = \
 	libbuxtonsimple.la
 
 if BUILD_GTK_DEMO

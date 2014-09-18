@@ -24,6 +24,7 @@
  *
  */
 
+#include <Ecore.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -33,10 +34,18 @@
 
 #include "buxtonsimple.h"
 
-/* DEMONSTRATION */
+/*
+ * This demo creates a key "tk_i32" on group "tg_s5" and layer "user".
+ * It then registers for notification on that key in buxton, and registers
+ * for notifications on this instance of buxtonsimple in the Ecore main loop
+ * It then starts the mainloop. Users can then changed the value of tk_i32 with
+ * the commandline interface (buxtonctl), which will trigger this callback,
+ * which prints the name of the key, and its new value.
+ */
+
+/* Callback function for notifications */
 void tk_i32_notify_cb(void *key_data, char *key_name)
 {
-	//tk_s6 is a INT32
 	int32_t *data = (int32_t *)key_data;
 	printf("key %s was changed to value %d\n", key_name, *data);
 }
@@ -47,7 +56,6 @@ int main(void)
 	errno = 0;
 	sbuxton_set_group("tg_s5", "user");
 	printf("set_group: 'tg_s5', 'user', Error number: %s.\n", strerror(errno));
-
 
 	/* Test Int setting */
 	int32_t i32 = (int32_t) rand() % 50 + 1;
@@ -61,27 +69,19 @@ int main(void)
 		return -1;
 	}
 
-	// Get notifications
+	/* Register for notifications in buxton */
 	printf("Register for int32_t tk_i32\n");
 	sbuxton_register_notify("tk_i32", &tk_i32_notify_cb);
 
-	//register in ecore
-	printf("Register file descriptor in ecore handler\n");
+	/* Register for notifications in buxton */
+	printf("Register buxton client file descriptor in ecore handler\n");
 	sbuxton_register_ecore();
 
-	//start_main_loop
+	/* Start ecore mainloop */
 	printf("Start mainloop\n");
 	ecore_main_loop_begin();
 
-	//change some keys....
-	//printf("Change keys\n");
-	//sbuxton_set_string("tk_s5", "changed1");
-	//sbuxton_set_int32("tk_i32", 5);
-	//sbuxton_set_int32("tk_i32", 25);
-	//sbuxton_set_string("tk_s5", "changed again");
-	//sbuxton_set_int32("tk_i32", 125);
-
-	//shutdown main loop
+	/* Shutdown main loop */
 	ecore_shutdown();
 
 	return 0;
