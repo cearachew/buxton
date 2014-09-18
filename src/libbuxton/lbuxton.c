@@ -690,7 +690,7 @@ void *buxton_response_value(BuxtonResponse response)
 	}
 
 	type = buxton_response_type(response);
-	if (type == BUXTON_CONTROL_GET || BUXTON_CONTROL_GET_KEY_TYPE) {
+	if (type == BUXTON_CONTROL_GET || type == BUXTON_CONTROL_GET_KEY_TYPE) {
 		d = buxton_array_get(r->data, 1);
 	} else if (type == BUXTON_CONTROL_CHANGED) {
 		if (r->data->len) {
