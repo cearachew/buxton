@@ -68,7 +68,7 @@ void sbuxton_register_notify(char *key, NotifyCallback callback)
 	cb->callback = callback;
 	cb->status = 0;
 
-	if(buxton_register_notification(client, _key, _rn_cb, cb, false)) {
+	if(buxton_register_notification(client, _key, _rn_cb, cb, true)) {
 		buxton_debug("Register notification call failed\n");
 		errno = EACCES;
 	} else {
