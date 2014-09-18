@@ -119,7 +119,10 @@ dist_man_MANS = \
 	docs/sbuxton_set_double.3 \
 	docs/sbuxton_set_bool.3 \
 	docs/sbuxton_set_group.3 \
-	docs/sbuxton_remove_group.3 
+	docs/sbuxton_register_notify.3 \
+	docs/sbuxton_register_ecore.3 \
+	docs/sbuxton_remove_group.3 \
+	docs/sbuxton_unregister_notify.3
 endif
 
 TESTS = \

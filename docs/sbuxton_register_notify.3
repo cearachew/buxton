@@ -1,0 +1,144 @@
+'\" t
+.TH "SBUXTON_REGISTER_NOTIFY" "3" "buxton 1" "sbuxton_register_notify"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+sbuxton_register_notify, sbuxton_unregister_notify, sbuxton_register_ecore \-
+Manage key-name notifications
+
+.SH "SYNOPSIS"
+.nf
+\fB
+#include <buxtonsimple.h>
+\fR
+.sp
+\fB
+void sbuxton_register_notify(char *\fIname\fB,
+.br
+                                 NotifyCallback \fIcallback\fB)
+.sp
+.br
+void sbuxton_unregister_notify(char *\fIname\fB)
+.sp
+.br
+void sbuxton_register_ecore(void)
+\fR
+.fi
+
+.SH "DESCRIPTION"
+.PP
+These functions are used to manage key\-name notifications on
+key \fIname\fR.
+
+To register for notifications on a specific key\-name, the client
+should call \fBsbuxton_register_notify\fR(3)\&. Similarly, to
+unregister for notifications, \fBsbuxton_unregister_notify\fR(3)
+can be used\&.
+
+Both functions accept a callback functions to register with
+the daemon, referenced by the \fIcallback\fR argument; the callback
+function is called upon a change in the key-name's value\&.
+
+.SH "CODE EXAMPLE"
+.nf
+.sp
+#include <Ecore.h>
+#include <errno.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include "buxtonsimple.h"
+
+/* Callback function for notifications */
+void tk_i32_notify_cb(void *key_data, char *key_name)
+{
+	int32_t *data = (int32_t *)key_data;
+	printf("key %s was changed to value %d\n", key_name, *data);
+}
+
+int main(void)
+{
+	/* Create group */
+	errno = 0;
+	sbuxton_set_group("tg_s5", "user");
+	printf("set_group: 'tg_s5', 'user', Error number: %s.\n", strerror(errno));
+
+	/* Test Int setting */
+	int32_t i32 = (int32_t) rand() % 50 + 1;
+	printf("value should be set to %d.\n", i32);
+	errno = 0;
+	sbuxton_set_int32("tk_i32", i32);
+	printf("set_int32: 'tg_s5', 'tk_i32', Error number: %s.\n", strerror(errno));
+
+	if (!ecore_init()) {
+		printf("Could not initialize ecore");
+		return -1;
+	}
+
+	/* Register for notifications in buxton */
+	printf("Register for int32_t tk_i32\n");
+	sbuxton_register_notify("tk_i32", &tk_i32_notify_cb);
+
+	/* Register for notifications in buxton */
+	printf("Register buxton client file descriptor in ecore handler\n");
+	sbuxton_register_ecore();
+
+	/* Start ecore mainloop */
+	printf("Start mainloop\n");
+	ecore_main_loop_begin();
+
+	/* unregister notifications */
+	sbuxton_unregister_notify("tk_i32");
+
+	/* Shutdown main loop */
+	ecore_shutdown();
+
+	return 0;
+}
+.fi
+
+.SH "RETURN VALUE"
+.PP
+Returns void. On failure, errno is set to ENOTCONN if the client
+couldn't connect, ENOMEM if memory allocation failed, or EACCES otherwise/
+
+.SH "COPYRIGHT"
+.PP
+Copyright 2014 Intel Corporation\&. License: Creative Commons
+Attribution\-ShareAlike 3.0 Unported\s-2\u[1]\d\s+2, with exception
+for code examples found in the \fBCODE EXAMPLE\fR section, which are
+licensed under the MIT license provided in the \fIdocs/LICENSE.MIT\fR
+file from this buxton distribution\&.
+
+.SH "SEE ALSO"
+.PP
+\fBbuxton\fR(7),
+\fBbuxtond\fR(8),
+\fBbuxton\-api\fR(7)
+
+.SH "NOTES"
+.IP " 1." 4
+Creative Commons Attribution\-ShareAlike 3.0 Unported
+.RS 4
+\%http://creativecommons.org/licenses/by-sa/3.0/
+.RE

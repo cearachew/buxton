@@ -98,7 +98,7 @@ void sbuxton_unregister_notify(char *key)
 	}
 
 	saved_errno = errno;
-	BuxtonKey _key = NULL;
+	BuxtonKey _key;
 
 	_key = _buxton_notify_create(_layer, _group, key);
 
@@ -138,6 +138,7 @@ void sbuxton_register_ecore(void)
 					_buxton_update_cb, NULL, NULL, NULL);
 	if (!e_handler) {
 		buxton_debug("Call to ecore_main_fd_handler_add failed\n");
+		errno = EACCES;
 	}
 }
 

@@ -40,8 +40,20 @@ typedef struct nstatus {
 
 /*Buxton Simple API Methods*/
 
+/**
+ * Registers for notifications for the key name key. When the key is changed,
+ * calls the NotifyCallback callback
+ * @param key A key name to register (char *)
+ * @param callback A function pointer, takes a void * and a char * (NotifyCallback)
+ */
 _bx_export_ void sbuxton_register_notify(char *key, NotifyCallback callback);
-/* adds the BuxtonClient client's file descriptor to the ecore main loop
+/**
+ * Unregisters notifications for the key name (char *) key
+ * @param key A key name to unregister (char *)
+ */
+_bx_export_ void sbuxton_unregister_notify(char *key);
+/**
+ * adds the BuxtonClient client's file descriptor to the ecore main loop
  * fd handler along with the _buxton_update_cb function
  */
 _bx_export_ void sbuxton_register_ecore(void);

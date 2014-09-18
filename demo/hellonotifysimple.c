@@ -81,6 +81,9 @@ int main(void)
 	printf("Start mainloop\n");
 	ecore_main_loop_begin();
 
+	/* unregister notifications */
+	sbuxton_unregister_notify("tk_i32");
+
 	/* Shutdown main loop */
 	ecore_shutdown();
 
