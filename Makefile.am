@@ -105,8 +105,10 @@ dist_man_MANS = \
 	docs/sbuxton_get_int64.3 \
 	docs/sbuxton_get_uint64.3 \
 	docs/sbuxton_get_float.3 \
+	docs/sbuxton_get_fd.3 \
 	docs/sbuxton_get_double.3 \
 	docs/sbuxton_get_bool.3 \
+	docs/sbuxton_handle_response.3 \
 	docs/sbuxton_set_int32.3 \
 	docs/sbuxton_set_uint32.3 \
 	docs/sbuxton_set_string.3 \
