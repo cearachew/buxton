@@ -267,11 +267,6 @@ void _rn_cb(BuxtonResponse response, void *data)
 	name = buxton_key_get_name(key);
 	value = buxton_response_value(response);
 
-	if (!value) {
-		buxton_debug("No value, key was removed\n");
-		return;
-	}
-
 	buxton_debug("Calling client cb....\n");
 	cb = (NotifyCallback)ret->callback;
 

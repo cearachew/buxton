@@ -47,7 +47,11 @@
 void tk_i32_notify_cb(void *key_data, char *key_name)
 {
 	int32_t *data = (int32_t *)key_data;
-	printf("key %s was changed to value %d\n", key_name, *data);
+	if (!data) {
+		printf("key %s was removed\n", key_name);
+	} else {
+		printf("key %s was changed to value %d\n", key_name, *data);
+	}
 }
 
 int main(void)
