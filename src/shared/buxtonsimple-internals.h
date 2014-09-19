@@ -18,8 +18,6 @@
  * GNU Lesser General Public License 2.1
  */
 
-#include <Ecore.h>
-
 #include "buxton.h"
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
@@ -91,16 +89,6 @@ typedef struct nstatus {
 } nstatus; */
 
 extern BuxtonClient client;
-
-/**
- * Callback for adding the notification fd to ecore_main_fd_handler_add
- * Calls buxton_client_handle_response
- * @param data A void pointer that passes in data from adding to fd- unused
- * @param fd_handler Ecore_Fd_Handler - unused
- * @return Returns true for success, false for failure as the return value of
- *      buxton_client_handle_response
- */
-Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler);
 
 void _rn_cb(BuxtonResponse response, void *data);
 

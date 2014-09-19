@@ -240,14 +240,6 @@ void _rg_cb(BuxtonResponse response, void *data)
 	}
 }
 
-/* Callback for ecore_main_fd_handler_add */
-Eina_Bool _buxton_update_cb(void *data, Ecore_Fd_Handler *fd_handler)
-{
-	buxton_debug("_buxton_update_cb calling handle_response...\n");
-	ssize_t handled = buxton_client_handle_response(client);
-	return (handled >= 0);
-}
-
 /* Callback for buxton_register_notification */
 void _rn_cb(BuxtonResponse response, void *data)
 {

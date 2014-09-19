@@ -41,6 +41,19 @@ typedef struct nstatus {
 /*Buxton Simple API Methods*/
 
 /**
+ * Returns the client's file descriptor if there is a registered notification
+ * and the client connection is already open
+ * @ return An int representing the client's file descriptor, or -1 if not connected
+ */
+_bx_export_ int sbuxton_get_fd(void);
+/**
+ * This wraps buxton_client_handle_response, which handles responses from the daemon
+ * It is used for handling notifications in the fd. It returns the number of messages
+ * it has handled, or -1 if the client is not connected
+ * @return An ssize_t
+ */
+_bx_export_ ssize_t sbuxton_handle_response(void);
+/**
  * Registers for notifications for the key name key. When the key is changed,
  * calls the NotifyCallback callback
  * @param key A key name to register (char *)
@@ -52,11 +65,6 @@ _bx_export_ void sbuxton_register_notify(char *key, NotifyCallback callback);
  * @param key A key name to unregister (char *)
  */
 _bx_export_ void sbuxton_unregister_notify(char *key);
-/**
- * adds the BuxtonClient client's file descriptor to the ecore main loop
- * fd handler along with the _buxton_update_cb function
- */
-_bx_export_ void sbuxton_register_ecore(void);
 /**
  * Creates a group if it does not exist and uses that group for all following get and set calls
  * If the group already exists, it will be used for all following get and set calls

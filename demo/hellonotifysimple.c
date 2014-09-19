@@ -24,9 +24,9 @@
  *
  */
 
-#include <Ecore.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,10 +37,9 @@
 /*
  * This demo creates a key "tk_i32" on group "tg_s5" and layer "user".
  * It then registers for notification on that key in buxton, and registers
- * for notifications on this instance of buxtonsimple in the Ecore main loop
- * It then starts the mainloop. Users can then changed the value of tk_i32 with
- * the commandline interface (buxtonctl), which will trigger this callback,
- * which prints the name of the key, and its new value.
+ * for notifications on this instance of buxtonsimple in pollfd. Users can then
+ * changed the value of tk_i32 with the commandline interface (buxtonctl), which
+ * will trigger this callback, which prints the name of the key, and its new value.
  */
 
 /* Callback function for notifications */
@@ -56,6 +55,11 @@ void tk_i32_notify_cb(void *key_data, char *key_name)
 
 int main(void)
 {
+	struct pollfd pfd[1];
+	int r;
+	int fd;
+	int repoll_count = 10;
+
 	/* Create group */
 	errno = 0;
 	sbuxton_set_group("tg_s5", "user");
@@ -68,28 +72,40 @@ int main(void)
 	sbuxton_set_int32("tk_i32", i32);
 	printf("set_int32: 'tg_s5', 'tk_i32', Error number: %s.\n", strerror(errno));
 
-	if (!ecore_init()) {
-		printf("Could not initialize ecore");
-		return -1;
-	}
-
 	/* Register for notifications in buxton */
 	printf("Register for int32_t tk_i32\n");
 	sbuxton_register_notify("tk_i32", &tk_i32_notify_cb);
 
-	/* Register for notifications in buxton */
-	printf("Register buxton client file descriptor in ecore handler\n");
-	sbuxton_register_ecore();
+	/* get fd */
+	fd = sbuxton_get_fd();
 
-	/* Start ecore mainloop */
-	printf("Start mainloop\n");
-	ecore_main_loop_begin();
 
+repoll:
+	pfd[0].fd = fd;
+	pfd[0].events = POLLIN;
+	pfd[0].revents = 0;
+	r = poll(pfd, 1, 5000);
+
+	if (r < 0) {
+		printf("poll error\n");
+		return -1;
+	} else if (r == 0) {
+		if (repoll_count-- > 0) {
+			goto out;
+		}
+		goto repoll;
+	}
+
+	if (!sbuxton_handle_response()) {
+		printf("bad response from daemon\n");
+		return -1;
+	}
+
+	goto repoll;
+
+out:
 	/* unregister notifications */
 	sbuxton_unregister_notify("tk_i32");
-
-	/* Shutdown main loop */
-	ecore_shutdown();
 
 	return 0;
 }

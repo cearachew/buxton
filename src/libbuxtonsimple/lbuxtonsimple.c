@@ -32,6 +32,32 @@ static char _group[MAX_LG_LEN];
 static int saved_errno;
 static int num_notify = 0; 
 
+/* return the client's file descriptor */
+int sbuxton_get_fd(void)
+{
+	if (!client) {
+		buxton_debug("No notifications registered, not connected\n");
+		return -1;
+	}
+
+	_BuxtonClient *c = NULL;
+	c = (_BuxtonClient *)client;
+
+	return c->fd;
+}
+
+/* wrapper for buxton_client_handle_response */
+ssize_t sbuxton_handle_response(void)
+{
+	if (!client) {
+		errno = ENOTCONN;
+		buxton_debug("No notifications registered, not connected\n");
+		return -1;
+	}
+
+	return buxton_client_handle_response(client);
+}
+
 /* Register a key for notification */
 void sbuxton_register_notify(char *key, NotifyCallback callback)
 {
@@ -119,27 +145,6 @@ void sbuxton_unregister_notify(char *key)
 	if (num_notify == 0) {
 		_client_disconnect();
 	}		
-}
-
-/* add the client's fd to the ecore main loop */
-void sbuxton_register_ecore(void)
-{
-	if (!client) {
-		errno = ENOTCONN;
-		return;
-	}
-
-	_BuxtonClient *c = NULL;
-
-	c = (_BuxtonClient *)client;
-
-	Ecore_Fd_Handler *e_handler = ecore_main_fd_handler_add(c->fd,
-					ECORE_FD_READ | ECORE_FD_ERROR,
-					_buxton_update_cb, NULL, NULL, NULL);
-	if (!e_handler) {
-		buxton_debug("Call to ecore_main_fd_handler_add failed\n");
-		errno = EACCES;
-	}
 }
 
 /* Initialization of group */

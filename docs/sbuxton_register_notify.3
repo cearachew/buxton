@@ -20,8 +20,7 @@
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
 .SH "NAME"
-sbuxton_register_notify, sbuxton_unregister_notify, sbuxton_register_ecore \-
-Manage key-name notifications
+sbuxton_register_notify, sbuxton_unregister_notify \- Manage key-name notifications
 
 .SH "SYNOPSIS"
 .nf
@@ -32,13 +31,10 @@ Manage key-name notifications
 \fB
 void sbuxton_register_notify(char *\fIname\fB,
 .br
-                                 NotifyCallback \fIcallback\fB)
+                             NotifyCallback \fIcallback\fB)
 .sp
 .br
 void sbuxton_unregister_notify(char *\fIname\fB)
-.sp
-.br
-void sbuxton_register_ecore(void)
 \fR
 .fi
 
@@ -52,16 +48,17 @@ should call \fBsbuxton_register_notify\fR(3)\&. Similarly, to
 unregister for notifications, \fBsbuxton_unregister_notify\fR(3)
 can be used\&.
 
-Both functions accept a callback functions to register with
-the daemon, referenced by the \fIcallback\fR argument; the callback
-function is called upon a change in the key-name's value\&.
+Both functions accept a callback function to register with
+the daemon, referenced by the \fIcallback\fR argument; this
+is called upon a change in the key\-name's value\&. The callback
+function must take a void * and a char * and return void.
 
 .SH "CODE EXAMPLE"
 .nf
 .sp
-#include <Ecore.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,8 +69,6 @@ function is called upon a change in the key-name's value\&.
 /* Callback function for notifications */
 void tk_i32_notify_cb(void *key_data, char *key_name)
 {
-void tk_i32_notify_cb(void *key_data, char *key_name)
-{
 	int32_t *data = (int32_t *)key_data;
 	if (!data) {
 		printf("key %s was removed\n", key_name);
@@ -81,10 +76,14 @@ void tk_i32_notify_cb(void *key_data, char *key_name)
 		printf("key %s was changed to value %d\n", key_name, *data);
 	}
 }
-}
 
 int main(void)
 {
+	struct pollfd pfd[1];
+	int r;
+	int fd;
+	int repoll_count = 10;
+
 	/* Create group */
 	errno = 0;
 	sbuxton_set_group("tg_s5", "user");
@@ -97,28 +96,40 @@ int main(void)
 	sbuxton_set_int32("tk_i32", i32);
 	printf("set_int32: 'tg_s5', 'tk_i32', Error number: %s.\n", strerror(errno));
 
-	if (!ecore_init()) {
-		printf("Could not initialize ecore");
-		return -1;
-	}
-
 	/* Register for notifications in buxton */
 	printf("Register for int32_t tk_i32\n");
 	sbuxton_register_notify("tk_i32", &tk_i32_notify_cb);
 
-	/* Register for notifications in buxton */
-	printf("Register buxton client file descriptor in ecore handler\n");
-	sbuxton_register_ecore();
+	/* get fd */
+	fd = sbuxton_get_fd();
 
-	/* Start ecore mainloop */
-	printf("Start mainloop\n");
-	ecore_main_loop_begin();
 
+repoll:
+	pfd[0].fd = fd;
+	pfd[0].events = POLLIN;
+	pfd[0].revents = 0;
+	r = poll(pfd, 1, 5000);
+
+	if (r < 0) {
+		printf("poll error\n");
+		return -1;
+	} else if (r == 0) {
+		if (repoll_count-- > 0) {
+			goto out;
+		}
+		goto repoll;
+	}
+
+	if (!sbuxton_handle_response()) {
+		printf("bad response from daemon\n");
+		return -1;
+	}
+
+	goto repoll;
+
+out:
 	/* unregister notifications */
 	sbuxton_unregister_notify("tk_i32");
-
-	/* Shutdown main loop */
-	ecore_shutdown();
 
 	return 0;
 }

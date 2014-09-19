@@ -16,9 +16,6 @@ AM_CPPFLAGS = \
 	-I $(top_srcdir)/src/core \
 	-I $(top_srcdir)/src/security \
 	-I $(top_srcdir)/src/shared \
-	-I /usr/include/ecore-1 \
-	-I /usr/include/eina-1 \
-	-I /usr/include/eina-1/eina \
 	-D_MODULE_DIRECTORY=\"$(MODULEDIR)\" \
 	-D_DEFAULT_CONFIGURATION_FILE=\"$(CONFPATH)\" \
 	-D_DB_PATH=\"$(DB_PATH)\" \
@@ -120,7 +117,6 @@ dist_man_MANS = \
 	docs/sbuxton_set_bool.3 \
 	docs/sbuxton_set_group.3 \
 	docs/sbuxton_register_notify.3 \
-	docs/sbuxton_register_ecore.3 \
 	docs/sbuxton_remove_group.3 \
 	docs/sbuxton_unregister_notify.3
 endif
@@ -244,8 +240,7 @@ libbuxtonsimple_shared_la_SOURCES = \
 
 libbuxtonsimple_shared_la_LDFLAGS = \
 	$(AM_LDFLAGS) \
-	-static \
-	`pkg-config --cflags --libs ecore`
+	-static
 
 include_HEADERS += \
 	src/include/buxton.h \
@@ -549,8 +544,7 @@ bxt_hello_simple_LDADD = \
 bxt_hello_notify_simple_SOURCES = \
 	demo/hellonotifysimple.c
 bxt_hello_notify_simple_CFLAGS = \
-	$(AM_CFLAGS) \
-	`pkg-config --cflags --libs ecore`
+	$(AM_CFLAGS)
 bxt_hello_notify_simple_LDADD = \
 	libbuxtonsimple.la
 
