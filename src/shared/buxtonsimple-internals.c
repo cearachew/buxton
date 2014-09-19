@@ -365,6 +365,10 @@ BuxtonKey _buxton_notify_create(char *layer, char *group, char *name)
 
 void _gkt_cb(BuxtonResponse response, void *data)
 {
+	if (data == NULL) {
+		return;
+	}
+
 	BuxtonDataType *ret = (BuxtonDataType*) data;
 
 	if (buxton_response_status(response) != 0) {
